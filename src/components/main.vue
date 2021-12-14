@@ -88,6 +88,7 @@
                 class="h-10 w-10 bg-white p-2 rounded-full hover:text-red-500"
                 viewBox="0 0 20 20"
                 fill="currentColor"
+                @click.prevent="deleteTask(todo)"
               >
                 <path
                   fill-rule="evenodd"
@@ -152,11 +153,22 @@ export default {
           Completed: this.completed,
         })
         .then((docRef) => {
-          console.log("Document written with ID: ", docRef.id)
-          this.showModals=false;
+          console.log("Document written with ID: ", docRef.id);
+          this.showModals = false;
         })
         .catch((error) => {
           console.error("Error adding document: ", error);
+        });
+    },
+    deleteTask: function (todo) {
+      db.collection("todos")
+        .doc(todo.key)
+        .delete()
+        .then(() => {
+          console.log("Document successfully deleted!");
+        })
+        .catch((error) => {
+          console.error("Error removing document: ", error);
         });
     },
   },
