@@ -58,6 +58,7 @@
           <!-- Column Content -->
           <div
             class="px-3 py-3 space-y-2 border border-gray-300 group rounded-md hover:shadow-lg hover:bg-yellow-500 hover:border-0 transition ease-out"
+            :class="[todo.completed ? 'opacity-50' : 'opacity-100' ]"
           >
             <h2
               class="font-medium text-xl tracking-normal text-gray-900 group-hover:text-white"
@@ -73,6 +74,7 @@
                 class="h-10 w-10 bg-white p-2 rounded-full hover:text-green-500"
                 viewBox="0 0 20 20"
                 fill="currentColor"
+                @click="completedTask(todo)"
               >
                 <path
                   d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"
@@ -132,6 +134,7 @@ export default {
   },
   methods: {
     showModal: function () {
+      this.id = this.title = this.description = "";
       this.showModals = true;
     },
     additem: function (event) {
@@ -155,6 +158,7 @@ export default {
         .then((docRef) => {
           console.log("Document written with ID: ", docRef.id);
           this.showModals = false;
+         // location.reload();
         })
         .catch((error) => {
           console.error("Error adding document: ", error);
@@ -166,16 +170,26 @@ export default {
         .delete()
         .then(() => {
           console.log("Document successfully deleted!");
+          //this.todos.splice(0, this.todos.length);
         })
         .catch((error) => {
           console.error("Error removing document: ", error);
         });
     },
+    completedTask: function (todo){
+      db.collection('todos').doc(todo.key).set({
+        title:todo.title,
+        Description:todo.description,
+        Completed: !todo.completed
+      })
+    }
+
   },
   created() {
     db.collection("todos")
-      .get()
-      .then((querySnapshot) => {
+      .orderBy("title")
+      .onSnapshot((querySnapshot) => {
+        this.todos.splice(0, this.todos.length)
         querySnapshot.forEach((doc) => {
           this.todos.push({
             key: doc.id,
@@ -185,6 +199,12 @@ export default {
           });
         });
       });
+  },
+  updated() {
+    // db.collection("todos").doc()
+    // .onSnapshot((doc) => {
+    //     console.log("Current data: ", doc.data());
+    // });
   },
 };
 </script>
